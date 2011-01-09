@@ -59,7 +59,7 @@ void openSocket(int port, int* client_s, int* server_s, int reuseable)
 {
 	if((*server_s = socket(AF_INET, SOCK_STREAM, 0)) < 0)
 	{
-		printf("ECHOSERV: Error creating listening socket. (%d)\r\n", libnet_errno);
+		printf("ECHOSERV: Error creating listening socket. (%d)\r\n", net_errno);
 		exit(EXIT_FAILURE);
 	}
 
@@ -90,8 +90,9 @@ void openSocket(int port, int* client_s, int* server_s, int reuseable)
 		printf("ECHOSERV: Error calling accept()\r\n");
 		exit(EXIT_FAILURE);
 	}
-	else
+	else {
 		printf("connection at port %d accepted\r\n", port);
+	}
 }
 
 void closeSocket(int socket)
@@ -103,28 +104,6 @@ void closeSocket(int socket)
 	}
 	else
 		printf("socket closed...\r\n");
-}
-
-int xPressed()
-{
-	PadInfo padinfo;
-	PadData paddata;
-
-	ioPadInit(7);
-	ioPadGetInfo(&padinfo);
-
-	int i, xPressed = 0;
-	for(i=0; i<MAX_PADS; i++)
-	{
-		if(padinfo.status[i])
-		{
-			ioPadGetData(i, &paddata);
-			xPressed |= paddata.BTN_CROSS;
-		}
-	}
-
-	ioPadEnd();
-	return xPressed;
 }
 
 int exists(char* path)
@@ -156,13 +135,30 @@ void absPath(char* absPath, const char* path)
 
 int main(int argc, char *argv[])
 {
-	SysLoadModule(SYSMODULE_NET);
-	net_initialize_network();
+	PadInfo padinfo;
+	PadData paddata;
+	int i;
+
+	netInitialize();
+
+	ioPadInit(7);
 
 	printf("Starting PS3 FTP Server v1.0 - Build: %s\r\n", __DATE__);
 
 	while(1)
 	{
+		ioPadGetInfo(&padinfo);
+		for(i=0; i<MAX_PADS; i++){
+			if(padinfo.status[i]){
+				ioPadGetData(i, &paddata);
+				
+				if(paddata.BTN_CROSS){
+					return 0;
+				}
+			}
+			
+		}
+
 		strcpy(cwd, "/");
 		printf("New FTP session started...\r\n");
 
@@ -171,6 +167,18 @@ int main(int argc, char *argv[])
 
 		while(Readline(ftp_s, request, MAX_LINE-1) > 0 && strncmp(request, "QUIT", 4) != 0)
 		{
+			ioPadGetInfo(&padinfo);
+			for(i=0; i<MAX_PADS; i++){
+				if(padinfo.status[i]){
+					ioPadGetData(i, &paddata);
+				
+					if(paddata.BTN_CROSS){
+						return 0;
+					}
+				}
+			
+			}
+
 			printf("Request: %s\r\n", request);
 
 			if(strncmp(request, "USER", 4) == 0)
@@ -244,8 +252,8 @@ int main(int argc, char *argv[])
 
 		printf("FTP session closed...\r\n");
 
-		if(strncmp(request, "QUIT!", 5) == 0 || xPressed() != 0)
-			break; // shutdown
+		if(strncmp(request, "QUIT!", 5) == 0)
+			return 0;
 		else if(strncmp(request, "QUITR", 5) == 0)
 		{
 			sysProcessExitSpawn2("/dev_hdd0/ps3load.self", NULL, NULL, NULL, 0, 1001, SYS_PROCESS_SPAWN_STACK_SIZE_1M);
@@ -255,6 +263,6 @@ int main(int argc, char *argv[])
 
 	printf("Shutting down PS3 FTP Server.\r\n");
 
-	net_finalize_network();
-	SysUnloadModule(SYSMODULE_NET);
+	netFinalizeNetwork();
 }
+

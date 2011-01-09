@@ -40,9 +40,9 @@ void cmd_PWD()
 void cmd_PASV()
 {
 	rest = 0;
-	net_sockinfo_t snf;
+	netSocketInfo snf;
 
-	int ret = net_get_sockinfo(ftp_s, &snf, 1);
+	int ret = netGetSockInfo(ftp_s & ~SOCKET_FD_MASK, &snf, 1);
 
 	if(ret >= 0 && snf.local_adr.s_addr != 0)
 	{
@@ -331,6 +331,7 @@ void cmd_SIZE()
 	if(exists(temp) == 0)
 	{
 		struct stat entry; 
+
 		stat(temp, &entry);
 
 		sprintf(temp, "213 %lu\r\n", entry.st_size);
@@ -341,3 +342,4 @@ void cmd_SIZE()
 	WritelineEx(ftp_s, temp, 1);
 }
 //-----------------------------------------------------------------------
+

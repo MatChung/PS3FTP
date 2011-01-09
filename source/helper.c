@@ -21,7 +21,6 @@
 #include <errno.h>
 #include <string.h>
 
-
 /*  Read a line from a socket  */
 
 ssize_t Readline(int sockd, char* vptr, size_t maxlen){
@@ -81,3 +80,4 @@ ssize_t WritelineEx(int sockd, const char *vptr, int debug)
 		printf("Response: %s", vptr);
 	return Writeline(sockd, vptr, strlen(vptr));
 }
+

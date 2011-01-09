@@ -28,12 +28,12 @@
 		279
 	</value>
 	<value name="TITLE" type="string">
-		PS3-FTP v1.0
+		PS3FTP
 	</value>
 	<value name="TITLE_ID" type="string">
-    FTPD00001
-  </value>
+		FTPD00001
+	</value>
 	<value name="VERSION" type="string">
-		01.00
+		01.10
 	</value>
 </sfo>

@@ -17,8 +17,7 @@
 #ifndef FTP_HELP
 #define FTP_HELP
 
-
-#include <unistd.h>             /*  for ssize_t data type  */
+#include <unistd.h>		/*  for ssize_t data type  */
 
 #define LISTENQ        (1024)   /*  Backlog for listen()   */
 
@@ -30,3 +29,4 @@ ssize_t Writeline(int fc, const char* vptr, size_t maxlen);
 ssize_t WritelineEx(int fc, const char* vptr, int debug);
 
 #endif  /*  PG_SOCK_HELP  */
+
